@@ -18,7 +18,19 @@ const show = (req, res) => {
 };
 
 const store = (req, res) => {
-  res.json("Creazione di un nuovo post");
+  const { title, content, image, tags } = req.body;
+
+  let maxId = 0;
+  for(const post of posts) {
+    if(post.id > maxId) maxId = post.id;
+  }
+
+  const postId = maxId + 1;
+  const newPost = { id: postId, title, content, image, tags };
+
+  posts.push(newPost);
+
+  res.status(201).json(newPost);
 };
 
 const update = (req, res) => {

@@ -9,6 +9,9 @@ const app = express();
 //static assets middleware
 app.use(express.static("public"));
 
+// body parsers middlewares
+app.use(express.json());
+
 //routers
 app.use("/posts", postsRouter);
 
