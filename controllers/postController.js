@@ -8,11 +8,11 @@ const index = (req, res) => {
 }
 
 const show = (req, res) => {
-  const id = parseInt(req.params.id);
-  const post = posts.find(currentPost => currentPost.id === id);
+  const postId = parseInt(req.params.id);
+  const post = posts.find(currentPost => currentPost.id === postId);
  
   res.json({
-    description: "Lista del dettaglio del post " + id,
+    description: "Lista del dettaglio del post " + postId,
     data: post,
   });
 };
@@ -31,12 +31,69 @@ const store = (req, res) => {
   posts.push(newPost);
 
   res.status(201).json(newPost);
+
+  console.log(newPost);
+  
 };
 
 const update = (req, res) => {
-  const id = req.params.id;
-  res.json("Sostituzione del post " + id);
+  //CONTROLLO SE IL POST DA MODIFICARE ESISTE
+  const postId = parseInt(req.params.id);
+  const post = posts.find(currentPost => currentPost.id === postId);
+
+  if(!post) {
+    res.status(404);
+
+    res.json({
+        error: '404 Not Found',
+        message: 'Post not found'
+    });
+
+    return;
+  }
+
+  //CONTROLLO CHE LA RICHIESTA NON SIA MALFORMATA
+
+const { title, content, image, tags } = req.body;
+
+const malformedElements = [];
+
+if (!title || typeof title !== "string" || title.length < 3) {
+malformedElements.push("title");
+}
+
+if (!content || typeof content !== "string" || content.length < 3) {
+malformedElements.push("content");
+}
+
+if (typeof image !== "string") { malformedElements.push("image");
+}
+
+if (!Array.isArray (tags)) { malformedElements.push("tags"); }
+
+if (malformedElements.length) { 
+  res.status(400);
+res.json({ 
+  error: "400 Bad Request", 
+  message: "Request is malformed", 
+  malformedElements, 
+});
+
+return;
+}
+
+// EFFETTUO LA SOSTITUZIONE
+
+const updatedPost = { id: postId , title, content, image, tags }
+
+const postIndex = posts.indexOf(post);
+posts.splice(postIndex, 1, updatedPost);
+res.json(updatedPost);
+
+
 };
+
+
 
 const modify = (req, res) => {
   const id = req.params.id;
