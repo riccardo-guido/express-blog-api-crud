@@ -39,9 +39,9 @@ const store = (req, res) => {
 const update = (req, res) => {
   //CONTROLLO SE IL POST DA MODIFICARE ESISTE
   const postId = parseInt(req.params.id);
-  const post = posts.find(currentPost => currentPost.id === postId);
+  const originalPost = posts.find(currentPost => currentPost.id === postId);
 
-  if(!post) {
+  if(!originalPost) {
     res.status(404);
 
     res.json({
@@ -86,19 +86,69 @@ return;
 
 const updatedPost = { id: postId , title, content, image, tags }
 
-const postIndex = posts.indexOf(post);
-posts.splice(postIndex, 1, updatedPost);
+const originalPostIndex = posts.indexOf(originalPost);
+posts.splice(originalPostIndex, 1, updatedPost);
+
 res.json(updatedPost);
-
-
 };
 
 
 
 const modify = (req, res) => {
-  const id = req.params.id;
-  res.json("Modifica del post " + id);
-};
+ //CONTROLLO SE IL POST DA MODIFICARE ESISTE
+  const postId = parseInt(req.params.id);
+  const originalPost = posts.find(currentPost => currentPost.id === postId);
+
+  if(!originalPost) {
+    res.status(404);
+
+    res.json({
+        error: '404 Not Found',
+        message: 'Post not found'
+    });
+
+    return;
+  }
+  
+  const title = req.body.title ?? originalPost.title;
+  const content = req.body.content ?? originalPost.content;
+  const image = req.body.image ?? originalPost.image;
+  const tags = req.body.tags ?? originalPost.tags;
+
+  const malformedElements = [];
+
+if (typeof title !== "string" || title.length < 3) {
+malformedElements.push("title");
+}
+
+if (typeof content !== "string" || content.length < 3) {
+malformedElements.push("content");
+}
+
+if (typeof image !== "string") { malformedElements.push("image");
+}
+
+if (!Array.isArray (tags)) { malformedElements.push("tags"); }
+
+if (malformedElements.length) { 
+  res.status(400);
+res.json({ 
+  error: "400 Bad Request", 
+  message: "Request is malformed", 
+  malformedElements, 
+});
+return;
+}
+
+originalPost.title = title;
+originalPost.content = content;
+originalPost.image = image;
+originalPost.tags = tags;
+
+
+  res.json(originalPost);
+
+}
 
 const destroy = (req, res) => {
     const id = parseInt(req.params.id);
@@ -126,5 +176,4 @@ const destroy = (req, res) => {
 
 
 
-module.exports = { index, show, store, update, modify, destroy }
-
+module.exports = { index, show, store, update, modify, destroy };
