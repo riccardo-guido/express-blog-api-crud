@@ -1,7 +1,11 @@
 //imports
+const express = require("express");
 const postsRouter = require("./routers/posts");
 const { appPort, appUrl } = require("./data/db");
-const express = require("express");
+
+const errorHandler = require("./middlewares/errorHandler");
+const notFound = require("./middlewares/notFound");
+
 
 // express app config
 const app = express();
@@ -12,8 +16,14 @@ app.use(express.static("public"));
 // body parsers middlewares
 app.use(express.json());
 
-//routers
+//routes
 app.use("/posts", postsRouter);
+
+// middlewares
+
+app.use(notFound);
+app.use(errorHandler);
+
 
 // web server listening
 app.listen(appPort, () => {
