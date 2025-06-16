@@ -1,16 +1,21 @@
 //imports
 const express = require("express");
+const cors = require("cors");
 const postsRouter = require("./routers/posts");
-const { appPort, appUrl } = require("./data/db");
+const appPort = 3000;
+const appUrl = `http://localhost:${appPort}`;
 
 const errorHandler = require("./middlewares/errorHandler");
 const notFound = require("./middlewares/notFound");
 
-
 // express app config
 const app = express();
+const corsConfig = {
+  origin: "http://localhost:5173",
+};
 
 //static assets middleware
+app.use(cors(corsConfig));
 app.use(express.static("public"));
 
 // body parsers middlewares
@@ -23,7 +28,6 @@ app.use("/posts", postsRouter);
 
 app.use(notFound);
 app.use(errorHandler);
-
 
 // web server listening
 app.listen(appPort, () => {
