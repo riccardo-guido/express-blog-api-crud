@@ -14,7 +14,23 @@ const index = (req, res) => {
 };
 
 const show = (req, res) => {
-  //   const postId = parseInt(req.params.id);
+  const postId = parseInt(req.params.id);
+  const sql = `
+    SELECT *
+    FROM posts
+    WHERE id = ?`;
+
+  connection.query(sql, [postId], (err, results) => {
+    if (err) return res.status(500).json({ error: "Error executing query" });
+    if (results === 0) return res.status(404).json({ error: "Post not found" });
+
+    const post = results[0];
+    res.json({
+      data: post,
+      status: 200,
+    });
+  });
+
   //   const post = posts.find(currentPost => currentPost.id === postId);
   //   // HANDLE NOT FOUND
   // if(!post) {
@@ -133,17 +149,19 @@ const modify = (req, res) => {
 };
 
 const destroy = (req, res) => {
-  //   const id = parseInt(req.params.id);
-  // const post = posts.find(currentPost => currentPost.id === id);
-  // if(!post) {
-  //  const error = new Error("Post not Found");
-  // error.statusCode = 404;
-  // throw error;
-  // }
-  // const postIndex = posts.indexOf(post);
-  // posts.splice(postIndex, 1);
-  // console.log(posts);
-  // res.sendStatus(204);
+  const postId = parseInt(req.params.id);
+  const sql = `
+    DELETE FROM blogdb.posts WHERE (id = ?);`;
+
+  connection.query(sql, [postId], (err, results) => {
+    if (err) return res.status(500).json({ error: "Error executing query" });
+    if (results === 0) return res.status(404).json({ error: "Post not found" });
+
+    res.json({
+      data: results,
+      status: 200,
+    });
+  });
 };
 
 module.exports = { index, show, store, update, modify, destroy };
